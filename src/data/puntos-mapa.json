@@ -1,0 +1,7 @@
+[
+  { "id": "recepcion", "nombre": "Recepción / Proveeduría", "x": 50, "y": 82, "especiesFrecuentes": [] },
+  { "id": "costa-lago", "nombre": "Costa del lago", "x": 30, "y": 40, "especiesFrecuentes": ["martin-pescador", "pato-torrentes", "arrayan", "coipo"] },
+  { "id": "sendero-bosque", "nombre": "Sendero al bosque valdiviano", "x": 65, "y": 30, "especiesFrecuentes": ["chucao", "huet-huet", "canelo", "tepa", "helecho-pelicula", "pudu"] },
+  { "id": "zona-camping", "nombre": "Zona de acampe", "x": 45, "y": 60, "especiesFrecuentes": ["zorzal-patagonico", "comesebo-patagonico", "chilco", "rayadito"] },
+  { "id": "mirador", "nombre": "Mirador alto", "x": 80, "y": 15, "especiesFrecuentes": ["condor", "aguila-mora", "lenga", "cipres-cordillera"] }
+]
