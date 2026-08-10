@@ -12,9 +12,11 @@ import ResultadoIA from "./ResultadoIA";
  * perdiendo el estado (por eso mandaba de nuevo al catálogo sin resultado).
  *
  * Para evitar ese problema, la cámara en vivo se abre DENTRO de la página
- * con getUserMedia — nunca se sale de la app, así que no hay riesgo de que
- * el sistema operativo la recargue. Queda "Elegir de la galería" como
- * alternativa para fotos ya sacadas antes.
+ * con getUserMedia — nunca se sale de la app. El botón de disparo va
+ * SUPERPUESTO sobre el video (dentro de un contenedor de altura fija), como
+ * una app de cámara real, para que nunca dependa de cuánto mida la pantalla
+ * ni de cuánto contenido haya arriba — así no puede quedar "empujado" fuera
+ * de vista por la barra de navegación inferior ni nada por el estilo.
  */
 export default function CapturaFoto() {
   const online = useOnlineStatus();
@@ -29,18 +31,10 @@ export default function CapturaFoto() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const controlesRef = useRef(null);
 
   useEffect(() => {
     return () => detenerCamara();
   }, []);
-
-  useEffect(() => {
-    if (camaraActiva) {
-      // Por si la vista previa empuja el botón fuera de pantalla en algún celular
-      setTimeout(() => controlesRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 200);
-    }
-  }, [camaraActiva]);
 
   async function activarCamara() {
     setErrorCamara(null);
@@ -50,8 +44,6 @@ export default function CapturaFoto() {
         audio: false,
       });
       streamRef.current = stream;
-      // El <video> ya está montado en el DOM (se renderiza siempre, oculto
-      // con CSS cuando no hay cámara activa), así que el ref ya es válido acá.
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -177,33 +169,86 @@ export default function CapturaFoto() {
         </div>
       )}
 
-      {/* El video y el canvas están siempre montados (solo se muestran/ocultan
-          con CSS) para que la referencia exista desde antes de pedir la cámara. */}
-      <video
-        ref={videoRef}
-        playsInline
-        muted
+      {/* Contenedor de altura FIJA (no depende del alto natural del video ni
+          de cuánto contenido haya arriba). Los botones van superpuestos
+          adentro, así siempre están a la vista sin scrollear. */}
+      <div
         style={{
+          position: "relative",
           width: "100%",
-          maxHeight: "50vh",
-          objectFit: "cover",
+          height: camaraActiva ? "min(65vh, 480px)" : 0,
           borderRadius: "var(--radio)",
+          overflow: "hidden",
           background: "#000",
-          display: camaraActiva ? "block" : "none",
+          transition: "height 0.15s ease",
         }}
-      />
-      <canvas ref={canvasRef} style={{ display: "none" }} />
+      >
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: camaraActiva ? "block" : "none",
+          }}
+        />
+        <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      {camaraActiva ? (
-        <div ref={controlesRef} style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button className="boton-grande" style={{ flex: 1 }} onClick={sacarFoto} disabled={!online}>
-            📸 Sacar foto
-          </button>
-          <button className="boton-grande secundario" onClick={detenerCamara}>
-            Cancelar
-          </button>
-        </div>
-      ) : (
+        {camaraActiva && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: "flex",
+              gap: 10,
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "14px 12px calc(14px + env(safe-area-inset-bottom, 0px))",
+              background: "linear-gradient(transparent, rgba(0,0,0,0.65))",
+            }}
+          >
+            <button
+              onClick={sacarFoto}
+              disabled={!online}
+              aria-label="Sacar foto"
+              style={{
+                width: 68,
+                height: 68,
+                borderRadius: "50%",
+                border: "4px solid white",
+                background: "var(--color-acento)",
+                fontSize: "1.6rem",
+              }}
+            >
+              📸
+            </button>
+            <button
+              onClick={detenerCamara}
+              style={{
+                position: "absolute",
+                right: 14,
+                bottom: 22,
+                padding: "8px 14px",
+                borderRadius: 999,
+                border: "none",
+                background: "rgba(255,255,255,0.9)",
+                color: "var(--color-primario)",
+                fontWeight: 600,
+              }}
+            >
+              Cancelar
+            </button>
+          </div>
+        )}
+      </div>
+
+      {!camaraActiva && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <button className="boton-grande" onClick={activarCamara} disabled={!online}>
             📷 Usar la cámara
