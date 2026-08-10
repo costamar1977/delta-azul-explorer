@@ -97,7 +97,11 @@ export default function CapturaFoto() {
           "Esta función todavía no tiene la API key configurada (ver README). Por ahora usá el catálogo manual."
         );
       } else {
-        setError("No pudimos consultar el servicio de identificación. Probá de nuevo o usá el catálogo.");
+        // TEMPORAL: mostramos el detalle técnico en pantalla para
+        // diagnosticar por qué falla en producción. Sacar esto después.
+        setError(
+          `No pudimos consultar el servicio de identificación. Detalle técnico (mandale una captura a Claude): ${err.message}`
+        );
       }
     } finally {
       setCargando(false);
