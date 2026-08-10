@@ -29,10 +29,18 @@ export default function CapturaFoto() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const controlesRef = useRef(null);
 
   useEffect(() => {
     return () => detenerCamara();
   }, []);
+
+  useEffect(() => {
+    if (camaraActiva) {
+      // Por si la vista previa empuja el botón fuera de pantalla en algún celular
+      setTimeout(() => controlesRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 200);
+    }
+  }, [camaraActiva]);
 
   async function activarCamara() {
     setErrorCamara(null);
@@ -177,6 +185,8 @@ export default function CapturaFoto() {
         muted
         style={{
           width: "100%",
+          maxHeight: "50vh",
+          objectFit: "cover",
           borderRadius: "var(--radio)",
           background: "#000",
           display: camaraActiva ? "block" : "none",
@@ -185,7 +195,7 @@ export default function CapturaFoto() {
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
       {camaraActiva ? (
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        <div ref={controlesRef} style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <button className="boton-grande" style={{ flex: 1 }} onClick={sacarFoto} disabled={!online}>
             📸 Sacar foto
           </button>
