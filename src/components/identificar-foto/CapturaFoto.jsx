@@ -24,6 +24,7 @@ export default function CapturaFoto() {
   const [error, setError] = useState(null);
   const [camaraActiva, setCamaraActiva] = useState(false);
   const [errorCamara, setErrorCamara] = useState(null);
+  const [organo, setOrgano] = useState("leaf");
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -86,7 +87,7 @@ export default function CapturaFoto() {
     setResultados(null);
     setCargando(true);
     try {
-      const res = tipo === "flora" ? await identificarFlora(archivo) : await identificarFauna(archivo);
+      const res = tipo === "flora" ? await identificarFlora(archivo, organo) : await identificarFauna(archivo);
       setResultados(res);
     } catch (err) {
       if (err.message === "MODO_DEMO_SIN_API_KEY") {
@@ -138,6 +139,32 @@ export default function CapturaFoto() {
         <p style={{ fontSize: "0.85rem", color: "#888" }}>
           Modo demo: todavía no está configurada la API key de {tipo === "flora" ? "Pl@ntNet" : "iNaturalist"}.
         </p>
+      )}
+
+      {tipo === "flora" && !camaraActiva && (
+        <div style={{ marginBottom: 10 }}>
+          <p style={{ fontSize: "0.85rem", color: "#666", margin: "0 0 6px" }}>
+            ¿Qué parte de la planta vas a fotografiar?
+          </p>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {[
+              { valor: "leaf", etiqueta: "Hoja" },
+              { valor: "flower", etiqueta: "Flor" },
+              { valor: "fruit", etiqueta: "Fruto" },
+              { valor: "bark", etiqueta: "Corteza" },
+              { valor: "habit", etiqueta: "Planta entera" },
+            ].map((o) => (
+              <button
+                key={o.valor}
+                onClick={() => setOrgano(o.valor)}
+                className={organo === o.valor ? "boton-grande" : "boton-grande secundario"}
+                style={{ padding: "6px 12px", fontSize: "0.8rem" }}
+              >
+                {o.etiqueta}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {camaraActiva ? (
