@@ -13,7 +13,7 @@
  * (ver https://docs.plantnet.org/en/reference/organs)
  */
 const PLANTNET_API_KEY = import.meta.env.VITE_PLANTNET_API_KEY;
-const PLANTNET_PROYECTO = "all"; // proyecto genérico de Pl@ntNet, cubre flora sudamericana
+const PLANTNET_PROYECTO = "the-plant-list"; // proyecto "World flora", cubre flora sudamericana
 
 export function plantNetDisponible() {
   return Boolean(PLANTNET_API_KEY);
