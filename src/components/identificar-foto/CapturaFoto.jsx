@@ -42,11 +42,13 @@ export default function CapturaFoto() {
         audio: false,
       });
       streamRef.current = stream;
-      setCamaraActiva(true);
+      // El <video> ya está montado en el DOM (se renderiza siempre, oculto
+      // con CSS cuando no hay cámara activa), así que el ref ya es válido acá.
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
+      setCamaraActiva(true);
     } catch (err) {
       setErrorCamara(
         "No pudimos acceder a la cámara (¿le diste permiso al navegador?). Probá con 'Elegir de la galería'."
@@ -167,23 +169,29 @@ export default function CapturaFoto() {
         </div>
       )}
 
+      {/* El video y el canvas están siempre montados (solo se muestran/ocultan
+          con CSS) para que la referencia exista desde antes de pedir la cámara. */}
+      <video
+        ref={videoRef}
+        playsInline
+        muted
+        style={{
+          width: "100%",
+          borderRadius: "var(--radio)",
+          background: "#000",
+          display: camaraActiva ? "block" : "none",
+        }}
+      />
+      <canvas ref={canvasRef} style={{ display: "none" }} />
+
       {camaraActiva ? (
-        <div>
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            style={{ width: "100%", borderRadius: "var(--radio)", background: "#000" }}
-          />
-          <canvas ref={canvasRef} style={{ display: "none" }} />
-          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            <button className="boton-grande" style={{ flex: 1 }} onClick={sacarFoto} disabled={!online}>
-              📸 Sacar foto
-            </button>
-            <button className="boton-grande secundario" onClick={detenerCamara}>
-              Cancelar
-            </button>
-          </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <button className="boton-grande" style={{ flex: 1 }} onClick={sacarFoto} disabled={!online}>
+            📸 Sacar foto
+          </button>
+          <button className="boton-grande secundario" onClick={detenerCamara}>
+            Cancelar
+          </button>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
